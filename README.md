@@ -1,3 +1,6 @@
+<img width="1267" height="1164" alt="image" src="https://github.com/user-attachments/assets/cb6fa569-cadf-47b0-b629-2a4fb79a8862" />
+
+
 # Groq + Agno AI Agent Template
 
 [Agno](agno.com) is a lightweight framework for building multi-modal Agents. Its easy to use, extremely fast and supports multi-modal inputs and outputs.
@@ -9,14 +12,12 @@ With Groq & Agno, you can build:
 - Reasoning Agents: Agents that can reason using a reasoning model, then generate a result using another model.
 - Structured Outputs: Agents that can generate pydantic objects adhering to a schema.
 
-
-
 Build intelligent AI agents with Groq's lightning-fast inference and Agno's powerful agent framework. This template demonstrates both simple chat agents and complex multi-tool agents with real-time data processing.
 
 ## Live Demo
 
 **Simple Chat Agent**: Run `python main.py` for basic AI conversations  
-**Advanced Stock Agent**: Run `python stocks.py` for interactive stock analysis with charts and real-time data
+**Advanced Stock Agent**: Run `python stocks.py` for an interactive stock analysis CLI with charts and real-time data powered by groq/compound and YFinance
 
 ## Overview
 
@@ -24,7 +25,7 @@ This template showcases how to build production-ready AI agents using Groq API a
 
 **Key Features:**
 - 🤖 Simple chat agent setup with Groq integration
-- 🌐 **Web Search Integration** with Groq's compound-beta model for real-time information
+- 🌐 **Web Search Integration** with Groq's compound system for real-time information
 - 📊 Advanced multi-tool agent with YFinance integration
 - 🎨 Rich terminal UI with charts and visualizations
 - 💬 Persistent conversation context and memory
@@ -37,7 +38,7 @@ This template showcases how to build production-ready AI agents using Groq API a
 **Tech Stack:**
 - **AI Framework:** Agno for agent orchestration and tool management
 - **AI Infrastructure:** Groq API for ultra-fast LLM inference
-- **Web Search:** Groq's compound-beta model for real-time web information
+- **Web Search:** Groq's compound system for real-time web information
 - **Data Sources:** YFinance for real-time financial data
 - **Visualization:** Rich, Plotext, and Matplotlib for charts and tables
 - **CLI Interface:** Rich console with beautiful markdown rendering
@@ -130,7 +131,7 @@ agent.print_response("Share a 2 sentence horror story.")
 The advanced example includes:
 - **Natural Language Processing**: Parse user requests like "analyze apple stock" or "compare tesla vs ford"
 - **Real-Time Data**: Fetch live stock prices, analyst recommendations, company news
-- **Web Search Integration**: Get latest information using Groq's compound-beta model
+- **Web Search Integration**: Get latest information using Groq's compound system
 - **Rich Visualizations**: Terminal charts, comparison tables, and performance metrics
 - **Conversation Memory**: Maintain context across multiple interactions
 - **Multiple Chart Types**: ASCII, terminal plots, and matplotlib exports
@@ -154,7 +155,7 @@ The advanced example includes:
 
 ### Advanced Agent Tools
 - **YFinance Integration**: Real-time stock data, company info, analyst recommendations
-- **Web Search (compound-beta)**: Live web search with Groq's compound-beta model for current information
+- **Web Search (compound)**: Live web search with Groq's compound system for current information
 - **Chart Generation**: Terminal plots, matplotlib charts, ASCII fallbacks
 - **Natural Language Parsing**: Convert user requests to structured commands
 - **Context Management**: Remember previous analyses and conversations
@@ -174,7 +175,7 @@ uv run python stocks.py
 "tell me about nvidia's recent performance"
 "what's the best performing tech stock?"
 
-# NEW: Web search capabilities with compound-beta
+# NEW: Web search capabilities with compound
 "what's zuckerberg doing with ai recently?"
 "search for tesla's latest innovations"
 "recent ai developments at microsoft"
@@ -187,7 +188,7 @@ The stocks agent also supports traditional menu navigation:
 1. Analyze Custom Stocks
 2. Compare Stocks
 3. Market Sentiment Analysis
-4. **Web Search for Stock Info** (NEW: powered by compound-beta)
+4. **Web Search for Stock Info** (NEW: powered by compound)
 5. Show Session Info
 6. Exit
 
@@ -232,13 +233,13 @@ The template supports multiple visualization libraries:
 
 ## Web Search Integration
 
-### Groq's Compound-Beta Model
-This template features cutting-edge web search capabilities powered by Groq's **compound-beta** model - an experimental model that can search the web in real-time and return comprehensive results with source attribution.
+### Groq's compound system
+This template features cutting-edge web search capabilities powered by Groq's **compound** model - an experimental model that can search the web in real-time and return comprehensive results with source attribution.
 
 **Key Web Search Features:**
 - 🌐 **Real-time Information**: Get the latest news, developments, and insights
 - 🔗 **Source Attribution**: All results include clickable source URLs
-- 📡 **Raw Output**: Direct access to compound-beta's unprocessed search results
+- 📡 **Raw Output**: Direct access to compound's unprocessed search results
 - 🎯 **Adaptive Focus**: Automatically adjusts search strategy based on your query
 - ⚡ **Lightning Fast**: Powered by Groq's ultra-fast inference infrastructure
 
@@ -261,10 +262,10 @@ This template features cutting-edge web search capabilities powered by Groq's **
 ```
 
 **How It Works:**
-1. **Direct Query Processing**: Your question goes directly to compound-beta
+1. **Direct Query Processing**: Your question goes directly to compound
 2. **Real-time Web Search**: The model searches current web sources
 3. **Source Compilation**: Results include URLs, dates, and attribution
-4. **Raw Output Display**: See exactly what compound-beta found
+4. **Raw Output Display**: See exactly what compound found
 
 **Integration with Stock Analysis:**
 - All stock analyses now include web-enhanced insights
@@ -288,7 +289,7 @@ chat_context = {
 ### Multi-Agent Architecture
 The stocks example uses specialized agents:
 - **Reasoning Agent**: Comprehensive stock analysis
-- **Web Search Agent**: Real-time information gathering with compound-beta
+- **Web Search Agent**: Real-time information gathering with compound
 - **NLP Agent**: Natural language command parsing
 - **Chat Agent**: Conversational responses with context
 
@@ -298,7 +299,7 @@ All financial data comes from live sources:
 - Analyst recommendations and price targets
 - Company news and earnings data
 - Historical performance metrics
-- **Web search results** from compound-beta for latest developments
+- **Web search results** from compound for latest developments
 - **Source-attributed information** with clickable links and publication dates
 
 ## Troubleshooting
