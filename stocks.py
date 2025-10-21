@@ -7,14 +7,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Model configuration - change here to switch models globally
-DEFAULT_MODEL_ID = "qwen/qwen3-32b"
+DEFAULT_MODEL_ID = "openai/gpt-oss-120b"
 
 # CLI visualization imports
 try:
     import matplotlib.pyplot as plt
-    import matplotlib.patches as patches
-    from matplotlib.animation import FuncAnimation
-    import numpy as np
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
@@ -80,12 +77,14 @@ chat_context = {
     "total_queries": 0
 }
 
-# Web Search Agent using compound-beta model for enhanced analysis
+# Web Search Agent using compound system for enhanced analysis
 web_agent = Agent(
     name="Web Search Agent",
     role="Search the web for information",
-    model=Groq(id="compound-beta"),
-    instructions="""You are a web search specialist using Groq's compound-beta model. Provide the most recent and accurate information available from your web search capabilities.
+    model=Groq(id="groq/compound"),
+    instructions=f"""You are a web search specialist using Groq's compound system. Provide the most recent and accurate information available from your web search capabilities.
+
+📅 **CURRENT DATE**: Today is {datetime.now().strftime('%A, %B %d, %Y')}. When searching for "recent", "latest", or "current" information, this is the reference date. Information from October 2024 is OLD - search for information from October 2025 onward.
 
 🔍 **SEARCH INSTRUCTIONS:**
 - Search for the most recent and relevant information
@@ -114,13 +113,27 @@ reasoning_agent = Agent(
     tools=[
         YFinanceTools(stock_price=True, analyst_recommendations=True, company_info=True, company_news=True, stock_fundamentals=True, income_statements=True, key_financial_ratios=True, technical_indicators=True, historical_prices=True),
     ],
-    instructions="""Create comprehensive stock analysis with beautiful markdown formatting:
+    instructions=f"""Create comprehensive stock analysis with beautiful markdown formatting:
 
-🚨 **CRITICAL EXECUTION RULES**:
-- ALWAYS execute your tools to get real data - do not show tool call syntax
-- NEVER show function calls like [get_stock_price=...] or [think=...] in your response
-- Execute tools silently and present only the final formatted results
-- If tools fail, say "Data not available" instead of showing error syntax
+📅 **CURRENT DATE**: Today is {datetime.now().strftime('%A, %B %d, %Y')}. Always use this as your reference for "today" or "current" dates.
+
+🚨 **CRITICAL EXECUTION RULES - READ CAREFULLY**:
+⚠️ YOU DO NOT HAVE CURRENT STOCK PRICE DATA IN YOUR TRAINING
+⚠️ YOUR TRAINING DATA IS OUTDATED - YOU MUST USE TOOLS FOR ALL FINANCIAL DATA
+⚠️ NEVER USE YOUR TRAINING DATA FOR STOCK PRICES, MARKET CAPS, OR ANY FINANCIAL METRICS
+
+**MANDATORY TOOL USAGE**:
+1. FIRST: Call get_stock_price() tool to get the REAL current price - DO NOT make up prices
+2. THEN: Call company_info() tool to get REAL company data - DO NOT use old training data
+3. THEN: Call analyst_recommendations() if available
+4. THEN: Call company_news() for recent news
+5. If ANY tool fails, clearly state "Data not available for [metric]" - DO NOT make up data
+
+**FORBIDDEN BEHAVIORS**:
+- ❌ NEVER make up stock prices from your memory/training
+- ❌ NEVER show tool call syntax like [get_stock_price=...] in your response
+- ❌ NEVER use training data for current prices - it's wrong
+- ❌ If you can't get real data from tools, say "Data not available" - don't hallucinate
 
 📊 FORMATTING REQUIREMENTS:
 - Use clear section headers with ## and ###
@@ -160,13 +173,15 @@ IMPORTANT:
 
 Make it visually stunning and easy to read in a terminal!""",
     markdown=True,
-    show_tool_calls=False,
+    show_tool_calls=True,  # Show tool calls to verify real data is being fetched
 )
 
 # Enhanced Natural Language Processing Agent with chat context
 nlp_agent = Agent(
     model=Groq(id=DEFAULT_MODEL_ID),
-    instructions="""You are an expert command parser for a stock analysis tool. Your job is to understand natural language requests and convert them into structured commands.
+    instructions=f"""You are an expert command parser for a stock analysis tool. Your job is to understand natural language requests and convert them into structured commands.
+
+📅 **CURRENT DATE**: Today is {datetime.now().strftime('%A, %B %d, %Y')}. Use this as reference when parsing temporal queries like "today", "recent", "latest", "current".
 
 🎯 **CORE MISSION**: Intelligently detect user intent - stock analysis, web search, or general chat.
 
@@ -195,14 +210,14 @@ nlp_agent = Agent(
 - **Business activities**: "partnerships", "acquisitions", "earnings", "revenue", "growth"
 
 🚨 **CRITICAL PARSING EXAMPLES**:
-- "how is apple doing" → {"command": "analyze", "stocks": ["AAPL"], "intent": "analyze Apple performance", "time_periods": []}
-- "compare tesla and ford" → {"command": "compare", "stocks": ["TSLA", "F"], "intent": "compare Tesla vs Ford", "time_periods": []}
-- "what's the latest news on nvidia" → {"command": "search", "stocks": ["NVDA"], "intent": "search for NVIDIA news", "time_periods": []}
-- "what's zuckerberg doing with ai recently" → {"command": "search", "stocks": ["META"], "intent": "search for Zuckerberg/Meta AI developments", "time_periods": []}
-- "what's happening with openai lately" → {"command": "search", "stocks": [], "intent": "search for OpenAI developments", "time_periods": []}
-- "recent ai developments at microsoft" → {"command": "search", "stocks": ["MSFT"], "intent": "search for Microsoft AI developments", "time_periods": []}
-- "what's the market doing" → {"command": "market", "stocks": [], "intent": "market sentiment analysis", "time_periods": []}
-- "should I buy tesla now" → {"command": "chat", "stocks": ["TSLA"], "intent": "chat about Tesla investment advice", "time_periods": []}
+- "how is apple doing" → {{"command": "analyze", "stocks": ["AAPL"], "intent": "analyze Apple performance", "time_periods": []}}
+- "compare tesla and ford" → {{"command": "compare", "stocks": ["TSLA", "F"], "intent": "compare Tesla vs Ford", "time_periods": []}}
+- "what's the latest news on nvidia" → {{"command": "search", "stocks": ["NVDA"], "intent": "search for NVIDIA news", "time_periods": []}}
+- "what's zuckerberg doing with ai recently" → {{"command": "search", "stocks": ["META"], "intent": "search for Zuckerberg/Meta AI developments", "time_periods": []}}
+- "what's happening with openai lately" → {{"command": "search", "stocks": [], "intent": "search for OpenAI developments", "time_periods": []}}
+- "recent ai developments at microsoft" → {{"command": "search", "stocks": ["MSFT"], "intent": "search for Microsoft AI developments", "time_periods": []}}
+- "what's the market doing" → {{"command": "market", "stocks": [], "intent": "market sentiment analysis", "time_periods": []}}
+- "should I buy tesla now" → {{"command": "chat", "stocks": ["TSLA"], "intent": "chat about Tesla investment advice", "time_periods": []}}
 
 📋 **COMPANY NAME TO TICKER MAPPING**:
 Use your knowledge of company names and ticker symbols. Common patterns:
@@ -220,12 +235,12 @@ Use your knowledge of company names and ticker symbols. Common patterns:
 - No time mentioned → [] (use defaults)
 
 🎯 **OUTPUT FORMAT** (JSON only):
-{
+{{
     "command": "analyze|compare|market|search|chat",
     "stocks": ["SYMBOL1", "SYMBOL2"],
     "intent": "clear description of request",
     "time_periods": ["1y", "6m", etc.]
-}
+}}
 
 **DECISION PRIORITY**:
 1. **SEARCH FIRST**: If query has search keywords (what's, latest, recent, news, developments, etc.) → use "search"
@@ -248,7 +263,14 @@ chat_agent = Agent(
     tools=[
         YFinanceTools(stock_price=True, analyst_recommendations=True, company_info=True, company_news=True, stock_fundamentals=True, income_statements=True, key_financial_ratios=True, technical_indicators=True, historical_prices=True),
     ],
-    instructions="""You are a friendly, conversational stock market expert. Respond naturally like you're chatting with a friend about stocks, not writing a formal report.
+    instructions=f"""You are a friendly, conversational stock market expert. Respond naturally like you're chatting with a friend about stocks, not writing a formal report.
+
+📅 **CURRENT DATE**: Today is {datetime.now().strftime('%A, %B %d, %Y')}. Always use this as your reference for "today" or "current" information.
+
+🚨 **CRITICAL DATA RULES**:
+⚠️ YOUR TRAINING DATA IS OUTDATED - YOU MUST USE TOOLS FOR ALL STOCK PRICES
+⚠️ NEVER make up stock prices from memory - ALWAYS use your YFinance tools to get real current data
+⚠️ If user asks for prices or data, you MUST call the tools - do not use training data
 
 CRITICAL STOCK SYMBOL RULES:
 - ONLY mention REAL, VERIFIED stock ticker symbols (like AAPL, MSFT, GOOGL, TSLA, NVDA, AMD, etc.)
@@ -291,7 +313,7 @@ AVOID:
 - Formal report language
 - Acting like you don't remember previous parts of the conversation""",
     markdown=True,
-    show_tool_calls=False,
+    show_tool_calls=True,  # Show tool calls to verify real data is being fetched
 )
 
 def add_to_chat_context(user_input, response_type, response_data):
@@ -685,7 +707,7 @@ def analyze_specific_stocks(stocks, time_periods=None, ticker_lookup=None):
         company_name = lookup_info.get('company_name', 'Unknown')
         sector = lookup_info.get('sector', 'Unknown')
         
-        # Get web search enhancement
+        # Get web search enhancement for news/insights (not for prices - YFinance handles that)
         web_insights = get_web_enhanced_analysis(stock, company_name, sector)
         
         # Create enhanced prompt with ticker lookup context and web insights
@@ -698,32 +720,32 @@ You MUST use your YFinance tools to get REAL data for **{stock}**.
 - Expected Sector: {sector}
 - This should help you verify you're getting data for the RIGHT company
 
-🌐 **WEB INSIGHTS** (latest information from web search):
+🌐 **WEB INSIGHTS** (latest news and information from web search):
 {web_insights if web_insights else "Web search data not available - proceed with YFinance tools only"}
 
 🚨 **CRITICAL DATA VERIFICATION**:
 - Double-check that the company name from your tools matches: "{company_name}"
 - If you get different company data, there may be a data source issue
-- If data seems inconsistent, clearly state "DATA MISMATCH DETECTED" in your response
+- Web search may have cached/outdated prices - YFinance tools are more accurate
 
-**REQUIRED TOOL CALLS:**
-1. FIRST: Use stock_price tool to get current price, volume, market cap
-2. THEN: Use company_info tool to get company details, sector, financials
-3. THEN: Use analyst_recommendations tool to get real analyst data
-4. THEN: Use company_news tool to get recent news
+**MANDATORY TOOL USAGE - CALL THESE IN ORDER:**
+1. FIRST: Use get_current_stock_price(symbol='{stock}') - this is your PRIMARY source for price
+2. THEN: Use get_company_info(symbol='{stock}') to get company details, sector, financials
+3. THEN: Use get_analyst_recommendations(symbol='{stock}') to get real analyst data
+4. THEN: Use get_company_news(symbol='{stock}') to get recent news
 
-📊 **REAL DATA TO GATHER:**
-- Current stock price, volume, market cap (from stock_price tool)
-- Company information and financials (from company_info tool)
-- Analyst recommendations and price targets (from analyst_recommendations tool)
-- Recent company news (from company_news tool)
+📊 **REAL DATA TO GATHER FROM YOUR YFINANCE TOOLS:**
+- Current stock price, volume, market cap (from get_current_stock_price)
+- Company information and financials (from get_company_info)
+- Analyst recommendations and price targets (from get_analyst_recommendations)
+- Recent company news (from get_company_news)
 
 🚨 **CRITICAL REQUIREMENTS:**
-- ONLY use data from your YFinance tools for financial metrics
-- Incorporate web insights for context and recent developments
+- ALWAYS call get_current_stock_price first and USE THAT PRICE in your analysis
+- DO NOT use your training data for prices - ONLY use what your tools return
 - DO NOT make up any prices, percentages, or financial metrics
-- If a tool doesn't return data, say "Data not available" instead of inventing numbers
-- If you detect data for wrong company, clearly flag this as an error
+- If a tool fails, clearly state "Data not available for [metric]"
+- Use web insights for context/news but YFinance tools for all financial metrics
 - Format real data beautifully with emojis and tables
 - Include sources from web insights when referencing external information
 
@@ -1372,7 +1394,7 @@ def main_interactive():
     if HAS_RICH:
         console.print("[bold green]🚀 Welcome to the Enhanced Stock Analysis Tool![/bold green]")
         console.print("[bold cyan]✨ Now with Web Search, Historical Performance & Chat Memory![/bold cyan]")
-        console.print("[bold blue]🌐 Powered by Groq's compound-beta model for real-time web insights![/bold blue]")
+        console.print("[bold blue]🌐 Powered by Groq's compound system for real-time web insights![/bold blue]")
         
         # Show available features
         features = []
@@ -1403,7 +1425,7 @@ def main_interactive():
     else:
         print("🚀 Welcome to the Enhanced Stock Analysis Tool!")
         print("✨ Now with Web Search, Historical Performance & Chat Memory!")
-        print("🌐 Powered by Groq's compound-beta model for real-time web insights!")
+        print("🌐 Powered by Groq's compound system for real-time web insights!")
         print("For better experience with beautiful markdown tables, install:")
         print("  pip install rich mdv")
         print("  or: pip install rich plotext matplotlib mdv")
@@ -1924,29 +1946,29 @@ def handle_search_request(user_input, stocks):
         if stocks:
             print(f"Related to: {', '.join(stocks)}")
     
-    # Simple, direct search query to get raw compound-beta results
+    # Simple, direct search query to get raw compound results
     search_query = user_input
     
     if HAS_RICH:
-        with console.status("[bold blue]🌐 Searching with compound-beta model...") as status:
+        with console.status("[bold blue]🌐 Searching with compound system...") as status:
             response = web_agent.run(search_query)
         
-        # Show raw compound-beta output with minimal processing
-        console.print(f"\n[bold green]📡 Raw Compound-Beta Output:[/bold green]")
-        console.print("[dim]Direct output from Groq's compound-beta web search model[/dim]")
+        # Show raw compound output with minimal processing
+        console.print(f"\n[bold green]📡 Raw compound Output:[/bold green]")
+        console.print("[dim]Direct output from Groq's compound web search model[/dim]")
         console.print("-" * 80)
         
         render_markdown_with_alternatives(
             response.content,
-            title="🔍 Compound-Beta Search Results",
+            title="🔍 compound Search Results",
             border_style="blue"
         )
     else:
-        print("🌐 Searching with compound-beta model...")
+        print("🌐 Searching with compound system...")
         response = web_agent.run(search_query)
         
-        print(f"\n📡 Raw Compound-Beta Output:")
-        print("Direct output from Groq's compound-beta web search model")
+        print(f"\n📡 Raw compound Output:")
+        print("Direct output from Groq's compound web search model")
         print("-" * 80)
         print(response.content)
     
