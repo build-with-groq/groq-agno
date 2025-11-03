@@ -53,7 +53,7 @@ This template showcases how to build production-ready AI agents using Groq API a
 
 1. **Clone the repository**
    ```bash
-   gh repo clone https://github.com/janzheng/groq-agno-template
+   gh repo clone https://github.com/build-with-groq/groq-agno
    cd groq-agno-template
    ```
 
