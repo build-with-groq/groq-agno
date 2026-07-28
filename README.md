@@ -50,11 +50,10 @@ This template showcases how to build production-ready AI agents using Groq API a
 - Groq API key ([Create a free GroqCloud account and generate an API key here](https://console.groq.com/keys))
 
 ### Setup
-
 1. **Clone the repository**
    ```bash
-   gh repo clone https://github.com/janzheng/groq-agno-template
-   cd groq-agno-template
+   git clone https://github.com/build-with-groq/groq-agno.git
+   cd groq-agno
    ```
 
 2. **Set up Python environment with uv**
